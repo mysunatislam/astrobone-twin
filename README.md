@@ -2,6 +2,8 @@
 
 AstroBone Twin is a prototype digital twin for explainable fracture-risk simulation. It combines:
 
+- Live demo: https://mysunatislam.github.io/astrobone-twin/
+- Public repo: https://github.com/mysunatislam/astrobone-twin
 - A rigged human skeleton with an articulated procedural fallback built with Three.js
 - Scenario-specific 3D impact objects, including a thin, curled paper checklist, EVA tool, and foot-strike proxy
 - Impact controls for mass, speed, angle, contact area, bone strength, and target region
@@ -15,6 +17,10 @@ AstroBone Twin is a prototype digital twin for explainable fracture-risk simulat
 - A local chatbot-style assistant that explains the current scenario and recommended next step
 
 This is a risk-estimation demo, not a diagnostic or medical device.
+
+## Contributors
+
+- Sairah Nuva / @mysunatislam - project concept, research direction, prototype build, dataset preparation, and demo ownership
 
 ## Problem And Solution
 
