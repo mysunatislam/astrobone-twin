@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "build": "vite build && node scripts/write-sites-worker.mjs",
+    "build:github": "vite build --base=/astrobone-twin/",
     "preview": "vite preview --host 127.0.0.1",
     "test": "node --test src/*.test.js"
   },

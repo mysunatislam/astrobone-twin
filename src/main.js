@@ -33,6 +33,12 @@ const aiState = {
   warning: "Research output only. Not a clinical diagnosis.",
 };
 
+function appAssetUrl(path) {
+  const base = import.meta.env.BASE_URL || "/";
+  const normalizedBase = base.endsWith("/") ? base : `${base}/`;
+  return `${normalizedBase}${path.replace(/^\/+/, "")}`;
+}
+
 let workflowStage = 0;
 const incidentLog = [];
 const completedCareActions = new Set();
@@ -331,7 +337,7 @@ const externalSkeleton = {
   loaded: false,
 };
 const SKELETON_MODEL_URLS = [
-  "/models/grumpy_skeleton_walk_cycle.glb",
+  appAssetUrl("models/grumpy_skeleton_walk_cycle.glb"),
   "https://raw.githubusercontent.com/mysunatislam/astrobone-twin/main/public/models/grumpy_skeleton_walk_cycle.glb",
 ];
 externalSkeleton.group.name = "Rigged skeleton GLB display";
@@ -1334,12 +1340,12 @@ function getRiskColor(score) {
 }
 
 async function loadDemoPrediction(targetRegion = state.target) {
-  const response = await fetch("/inference/demo/IMG0001739_prediction.json");
+  const response = await fetch(appAssetUrl("inference/demo/IMG0001739_prediction.json"));
   if (!response.ok) {
     throw new Error(`Prediction JSON failed to load: ${response.status}`);
   }
   const payload = await response.json();
-  applyAiPrediction(payload, "/inference/demo/IMG0001739_overlay.png", targetRegion);
+  applyAiPrediction(payload, appAssetUrl("inference/demo/IMG0001739_overlay.png"), targetRegion);
 }
 
 function applyAiPrediction(payload, overlaySrc = "", targetRegion = "") {
