@@ -20,7 +20,7 @@ This is a risk-estimation demo, not a diagnostic or medical device.
 
 ## Contributors
 
-- Sairah Nuva / @mysunatislam - project concept, research direction, prototype build, dataset preparation, and demo ownership
+- Mysunat Islam / @mysunatislam - project concept, research direction, prototype build, dataset preparation, and demo ownership
 
 ## Problem And Solution
 
