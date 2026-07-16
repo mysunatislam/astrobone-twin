@@ -1,0 +1,19 @@
+{
+  "name": "astrobone-twin",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build && node scripts/write-sites-worker.mjs",
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "node --test src/*.test.js"
+  },
+  "dependencies": {
+    "three": "^0.168.0"
+  },
+  "devDependencies": {
+    "playwright": "^1.61.1",
+    "vite": "^8.1.4"
+  }
+}

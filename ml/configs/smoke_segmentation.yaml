@@ -1,0 +1,15 @@
+seed: 7
+prefer_cuda: true
+amp: true
+image_size: 64
+batch_size: 2
+num_workers: 0
+epochs: 1
+lr: 0.0003
+weight_decay: 0.0001
+encoder_name: densenet121
+encoder_weights: null
+train_csv: data/synthetic/fracture_demo/splits/segmentation_train.csv
+val_csv: data/synthetic/fracture_demo/splits/segmentation_val.csv
+test_csv: data/synthetic/fracture_demo/splits/segmentation_test.csv
+run_dir: ml/runs/smoke_segmentation

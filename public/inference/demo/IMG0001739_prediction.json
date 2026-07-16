@@ -1,0 +1,13 @@
+{
+  "image": "E:\\AstroBone\\data\\raw\\FracAtlas\\images\\Fractured\\IMG0001739.jpg",
+  "classifierCheckpoint": "E:\\AstroBone\\ml\\runs\\classifier_densenet121\\best_classifier.pt",
+  "segmenterCheckpoint": "E:\\AstroBone\\ml\\runs\\segmentation_unetpp_densenet121\\best_segmenter.pt",
+  "fractureProbability": 0.9988875985145569,
+  "classificationThreshold": 0.5,
+  "fractureDetected": true,
+  "maskThreshold": 0.5,
+  "maskAreaFraction": 0.0040130615234375,
+  "overlayPath": "E:\\AstroBone\\ml\\inference\\demo\\IMG0001739_overlay.png",
+  "maskPath": "E:\\AstroBone\\ml\\inference\\demo\\IMG0001739_mask.png",
+  "modelWarning": "Research prototype only. Not a clinical diagnosis."
+}

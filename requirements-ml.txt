@@ -1,0 +1,9 @@
+torch
+torchvision
+timm
+segmentation-models-pytorch
+opencv-python
+pandas
+scikit-learn
+pyyaml
+tqdm

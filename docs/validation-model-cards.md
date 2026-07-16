@@ -1,0 +1,97 @@
+# AstroBone Validation And Model Cards
+
+## Validation Purpose
+
+AstroBone is a research prototype for explainable musculoskeletal decision support. It is not a diagnostic system. Validation should show that each layer behaves plausibly before any clinical or mission claim is made.
+
+## Mechanics Model Card
+
+Inputs:
+- object mass in grams
+- speed in meters per second
+- impact angle in degrees
+- contact area in square millimeters
+- target region
+- bone strength index
+- microgravity exposure or sport fatigue
+
+Current formulas:
+- kinetic energy = `0.5 * massKg * speed^2`
+- normal load component = `sin(angle)`
+- effective energy = `kineticEnergy * (0.22 + normalComponent * 0.78)`
+- stress proxy = `effectiveEnergy / max(1, contactArea)`
+- fragility multiplier = `0.82 + boneReservePenalty + microgravityTerm + sportFatigueTerm`
+
+Intended use:
+- show directionally correct relationships
+- support live scenario exploration
+- expose assumptions for judges and reviewers
+
+Non-use:
+- do not treat the score as fracture probability
+- do not use it for medical treatment decisions
+- do not claim it is validated contact mechanics
+
+Next validation:
+- hand-calc sanity cases
+- Simscape or finite-element contact tests
+- comparison with biomechanics literature
+- clinician or aerospace-medicine review
+
+## Image Model Card
+
+Classifier:
+- architecture: DenseNet121
+- dataset: FracAtlas prototype split
+- current test AUC: 0.899
+- current fracture recall: 0.656
+
+Segmenter:
+- architecture: U-Net++ with DenseNet121 encoder
+- dataset: FracAtlas mask prototype split
+- current test Dice: 0.394
+
+Intended use:
+- provide image evidence inside a broader decision record
+- compare imaging signal with impact mechanics and condition report
+
+Non-use:
+- not a standalone diagnosis
+- not validated on astronaut medical images
+- not validated for occult stress fracture detection
+
+Failure modes:
+- subtle fractures can be missed
+- masks can under-localize or over-localize
+- dataset distribution can differ from real mission imaging
+- image evidence can disagree with event mechanics
+
+## Dataset Card
+
+FracAtlas:
+- public musculoskeletal X-ray dataset for fracture classification, localization, and segmentation
+- useful for prototype training and explainable image overlays
+- not a spaceflight dataset
+
+NASA and spaceflight evidence:
+- NASA identifies bone fracture risk as tied to altered gravity, compromised bone strength, expected loads, and skeletal fragility.
+- NASA describes average bone-density loss of about 1% to 1.5% per month in microgravity during four-to-six-month missions.
+- NASA HRP and related life-science repositories provide the correct direction for space-specific evidence, but astronaut medical data can be controlled or aggregated.
+
+## Source Links
+
+- NASA fracture-risk record: https://www.nasa.gov/directorates/esdmd/hhp/risk-of-bone-fracture-due-to-spaceflight-induced-changes-to-bone/
+- NASA bone-change overview: https://www.nasa.gov/reference/risk-of-spaceflight-induced-bone-changes/
+- NASA Human Research Program: https://www.nasa.gov/hrp/
+- FracAtlas paper: https://pmc.ncbi.nlm.nih.gov/articles/PMC10404222/
+
+## Competition Claim Boundary
+
+Strong claim:
+AstroBone demonstrates an explainable workflow that combines impact mechanics, public fracture-image AI, skeletal fragility assumptions, crew condition, and a handoff plan.
+
+Avoid:
+AstroBone detects astronaut fractures or predicts actual fracture probability.
+
+Best near-term claim:
+AstroBone is a NASA-relevant prototype for transparent onboard fracture-risk triage when imaging, event reconstruction, and medical support are incomplete.

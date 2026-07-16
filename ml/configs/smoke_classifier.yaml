@@ -1,0 +1,14 @@
+seed: 7
+prefer_cuda: true
+amp: true
+pretrained: false
+image_size: 64
+batch_size: 4
+num_workers: 0
+epochs: 1
+lr: 0.0003
+weight_decay: 0.0001
+train_csv: data/synthetic/fracture_demo/splits/classification_train.csv
+val_csv: data/synthetic/fracture_demo/splits/classification_val.csv
+test_csv: data/synthetic/fracture_demo/splits/classification_test.csv
+run_dir: ml/runs/smoke_classifier

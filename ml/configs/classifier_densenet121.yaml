@@ -1,0 +1,14 @@
+seed: 42
+prefer_cuda: true
+amp: true
+pretrained: true
+image_size: 224
+batch_size: 16
+num_workers: 0
+epochs: 20
+lr: 0.0001
+weight_decay: 0.0001
+train_csv: data/splits/fracatlas/classification_train.csv
+val_csv: data/splits/fracatlas/classification_val.csv
+test_csv: data/splits/fracatlas/classification_test.csv
+run_dir: ml/runs/classifier_densenet121

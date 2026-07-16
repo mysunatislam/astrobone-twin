@@ -1,0 +1,569 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:," />
+    <title>AstroBone Twin</title>
+  </head>
+  <body>
+    <div id="app">
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <div>
+            <h1>AstroBone Twin</h1>
+            <p id="brand-subtitle">Onboard musculoskeletal decision support for exploration crews</p>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <span class="prototype-badge">Delayed-comms workflow</span>
+          <div class="mode-switch" role="group" aria-label="Simulation mode">
+            <button class="mode-button active" data-mode="space" type="button">Space</button>
+            <button class="mode-button" data-mode="sport" type="button">Sport</button>
+          </div>
+        </div>
+      </header>
+
+      <section class="mission-brief" aria-labelledby="mission-question">
+        <div class="brief-block problem-block">
+          <span class="section-label">Problem</span>
+          <h2 id="mission-question">Can a modest impact become dangerous when bone reserve is reduced?</h2>
+          <p id="problem-copy">
+            In space, months of skeletal unloading can reduce structural reserve while definitive
+            imaging and specialist care may be far away.
+          </p>
+        </div>
+        <div class="brief-divider" aria-hidden="true">
+          <span>Evidence</span>
+          <i></i>
+          <span>Decision</span>
+        </div>
+        <div class="brief-block solution-block">
+          <span class="section-label">AstroBone solution</span>
+          <p id="solution-copy">
+            Help the crew prevent risky tasks, assess an event, follow an approved response,
+            monitor recovery, and prepare a medical handoff.
+          </p>
+          <button id="guided-demo" class="primary-action" type="button">Run guided space case</button>
+        </div>
+      </section>
+
+      <section class="support-lifecycle" aria-label="How AstroBone helps">
+        <div class="lifecycle-intro">
+          <span class="section-label">How it helps</span>
+          <strong id="lifecycle-title">One onboard workflow from prevention to medical handoff</strong>
+        </div>
+        <div class="lifecycle-step">
+          <span>01</span>
+          <div>
+            <strong>Prevent</strong>
+            <small id="help-prevent">Screen a task or loose-object impact before exposure.</small>
+          </div>
+        </div>
+        <div class="lifecycle-step">
+          <span>02</span>
+          <div>
+            <strong>Assess</strong>
+            <small id="help-assess">Fuse imaging, event mechanics, bone reserve, and crew condition.</small>
+          </div>
+        </div>
+        <div class="lifecycle-step">
+          <span>03</span>
+          <div>
+            <strong>Respond</strong>
+            <small id="help-respond">Turn priority into a checkable, protocol-linked action plan.</small>
+          </div>
+        </div>
+        <div class="lifecycle-step">
+          <span>04</span>
+          <div>
+            <strong>Monitor & relay</strong>
+            <small id="help-monitor">Log change over time and export a compact medical packet.</small>
+          </div>
+        </div>
+      </section>
+
+      <main class="workspace">
+        <section class="simulation-shell" aria-label="3D digital twin simulation">
+          <div id="twin-view-grid" class="twin-view-grid">
+            <div class="twin-view skeleton-view">
+              <canvas id="twin-canvas" aria-label="Rigged skeletal mechanics view"></canvas>
+              <div class="anatomy-view-label">
+                <span>Skeletal mechanics</span>
+                <small>Bone load path and joint motion</small>
+              </div>
+            </div>
+          </div>
+          <div class="scene-hud">
+            <div>
+              <span class="hud-label">Combined signal</span>
+              <strong id="scene-decision-score">Incomplete</strong>
+            </div>
+            <div>
+              <span class="hud-label">Impact demand</span>
+              <strong id="risk-score">--</strong>
+              <small id="load-path">--</small>
+              <small id="impact-object-label">Paper sheet / sharp edge</small>
+            </div>
+            <div>
+              <span class="hud-label">Evidence</span>
+              <strong id="scene-evidence-count">2 of 3</strong>
+            </div>
+            <div>
+              <span class="hud-label">Twin state</span>
+              <strong id="risk-status">Calibrating</strong>
+            </div>
+          </div>
+          <div class="motion-switch" role="group" aria-label="Linked body movement">
+            <span>Skeleton motion</span>
+            <button class="motion-button active" data-motion="stand" type="button">Stand</button>
+            <button class="motion-button" data-motion="walk" type="button">Normal walk</button>
+            <button class="motion-button" data-motion="space" type="button">Space traveler</button>
+          </div>
+          <div class="timeline" aria-label="Impact process timeline">
+            <div class="timeline-step active" data-step="0">Trajectory</div>
+            <div class="timeline-step" data-step="1">Contact</div>
+            <div class="timeline-step" data-step="2">Load transfer</div>
+            <div class="timeline-step" data-step="3">Microcrack risk</div>
+            <div id="response-timeline-label" class="timeline-step" data-step="4">Crew response</div>
+          </div>
+        </section>
+
+        <aside class="controls" aria-label="Guided fracture-risk investigation">
+          <div class="panel-heading">
+            <div>
+              <span class="section-label">Guided workflow</span>
+              <h2>Investigation</h2>
+            </div>
+            <button id="reset-button" type="button">Reset</button>
+          </div>
+
+          <div class="workflow-tabs" role="tablist" aria-label="Investigation stages">
+            <button class="workflow-tab active" data-workflow-stage="0" role="tab" aria-selected="true" aria-controls="stage-evidence" type="button">
+              <span>1</span><b id="tab-label-evidence">Scan</b>
+            </button>
+            <button class="workflow-tab" data-workflow-stage="1" role="tab" aria-selected="false" aria-controls="stage-impact" type="button">
+              <span>2</span><b id="tab-label-impact">Event</b>
+            </button>
+            <button class="workflow-tab" data-workflow-stage="2" role="tab" aria-selected="false" aria-controls="stage-bone" type="button">
+              <span>3</span><b id="tab-label-bone">Crew</b>
+            </button>
+            <button class="workflow-tab" data-workflow-stage="3" role="tab" aria-selected="false" aria-controls="stage-decision" type="button">
+              <span>4</span><b id="tab-label-decision">Response</b>
+            </button>
+          </div>
+
+          <div class="stage-heading">
+            <span id="stage-kicker" class="section-label">Step 1 of 4</span>
+            <h3 id="stage-title">Inspect structural evidence</h3>
+            <p id="stage-description">
+              Begin with image evidence so the twin can compare a visible fracture signal with the
+              reconstructed impact.
+            </p>
+          </div>
+
+          <section id="stage-evidence" class="stage-panel" data-stage-panel="0" role="tabpanel">
+            <div class="ai-panel" id="ai-panel" aria-label="AI X-ray prediction">
+              <div class="panel-heading">
+                <h3>AI X-ray evidence</h3>
+                <span id="ai-decision" class="status-badge">Not loaded</span>
+              </div>
+              <img id="ai-overlay" class="ai-overlay hidden" alt="AI fracture mask overlay" />
+              <div id="ai-empty-state" class="ai-empty-state">
+                <span class="empty-state-mark" aria-hidden="true"></span>
+                <p id="ai-empty-text">No image result is connected to this case.</p>
+              </div>
+              <div class="metric-grid ai-metrics">
+                <div>
+                  <span>Fracture probability</span>
+                  <strong id="ai-probability">--</strong>
+                </div>
+                <div>
+                  <span>Localized mask area</span>
+                  <strong id="ai-mask-area">--</strong>
+                </div>
+              </div>
+              <p id="ai-warning">Research output only. Not a clinical diagnosis.</p>
+              <div class="action-row">
+                <button id="load-demo-prediction" class="primary-action" type="button">Load demo X-ray</button>
+                <button id="import-prediction" type="button">Import JSON</button>
+                <button id="clear-prediction" class="quiet-action" type="button">Clear</button>
+              </div>
+              <input id="prediction-file" class="hidden" type="file" accept="application/json,.json" />
+            </div>
+          </section>
+
+          <section id="stage-impact" class="stage-panel" data-stage-panel="1" role="tabpanel" hidden>
+            <label class="field">
+              <span>Target region</span>
+              <select id="target-region">
+                <option value="tibia" selected>Tibia shaft</option>
+                <option value="femur">Femur shaft</option>
+                <option value="knee">Knee joint</option>
+                <option value="ankle">Ankle joint</option>
+              </select>
+            </label>
+
+            <div class="preset-row" aria-label="Scenario presets">
+              <button class="preset-button" data-preset="paper" type="button">Paper edge</button>
+              <button class="preset-button" data-preset="eva" type="button">EVA tool</button>
+              <button class="preset-button" data-preset="runner" type="button">Runner load</button>
+            </div>
+
+            <div class="active-object">
+              <span>Simulated object</span>
+              <strong id="active-object-name">Paper sheet</strong>
+            </div>
+
+            <label class="field">
+              <span>Object mass <output id="mass-output">5 g</output></span>
+              <input id="mass" type="range" min="1" max="500" value="5" />
+            </label>
+
+            <label class="field">
+              <span>Impact speed <output id="speed-output">82 m/s</output></span>
+              <input id="speed" type="range" min="1" max="120" value="82" />
+            </label>
+
+            <label class="field">
+              <span>Impact angle <output id="angle-output">76 deg</output></span>
+              <input id="angle" type="range" min="5" max="90" value="76" />
+            </label>
+
+            <label class="field">
+              <span>Contact area <output id="area-output">2 mm2</output></span>
+              <input id="contact-area" type="range" min="1" max="120" value="2" />
+            </label>
+          </section>
+
+          <section id="stage-bone" class="stage-panel" data-stage-panel="2" role="tabpanel" hidden>
+            <label class="field">
+              <span>Bone strength index <output id="bone-output">0.74</output></span>
+              <input id="bone-index" type="range" min="45" max="120" value="74" />
+            </label>
+
+            <div id="space-fields" class="mode-fields">
+              <label class="field">
+                <span>Microgravity exposure <output id="days-output">240 d</output></span>
+                <input id="microgravity-days" type="range" min="0" max="420" value="240" />
+              </label>
+            </div>
+
+            <div id="sport-fields" class="mode-fields hidden">
+              <label class="field">
+                <span>Training fatigue <output id="fatigue-output">48%</output></span>
+                <input id="fatigue" type="range" min="0" max="100" value="48" />
+              </label>
+            </div>
+
+            <div class="section-divider">
+              <span id="condition-heading">Crew condition</span>
+              <small>Changes response priority, not the AI probability.</small>
+            </div>
+
+            <label class="field">
+              <span>Reported pain <output id="pain-output">6 / 10</output></span>
+              <input id="pain-score" type="range" min="0" max="10" value="6" />
+            </label>
+
+            <label class="field">
+              <span>Swelling</span>
+              <select id="swelling">
+                <option value="none">None</option>
+                <option value="mild">Mild</option>
+                <option value="moderate" selected>Moderate</option>
+                <option value="severe">Severe</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span id="mobility-label">Ability to use limb</span>
+              <select id="mobility">
+                <option value="normal">Normal</option>
+                <option value="limited" selected>Limited</option>
+                <option value="unable">Unable</option>
+              </select>
+            </label>
+
+            <label class="condition-check">
+              <input id="sensation-change" type="checkbox" />
+              <span>Reported numbness, tingling, or altered sensation</span>
+            </label>
+
+            <div class="metric-grid" aria-label="Computed mechanics">
+              <div>
+                <span>Kinetic energy</span>
+                <strong id="energy-metric">--</strong>
+              </div>
+              <div>
+                <span>Stress density</span>
+                <strong id="stress-metric">--</strong>
+              </div>
+              <div>
+                <span>Fragility factor</span>
+                <strong id="fragility-metric">--</strong>
+              </div>
+              <div>
+                <span>Physics confidence</span>
+                <strong id="confidence-metric">Prototype</strong>
+              </div>
+            </div>
+          </section>
+
+          <section id="stage-decision" class="stage-panel" data-stage-panel="3" role="tabpanel" hidden>
+            <div class="fusion-map" aria-label="AstroBone evidence fusion">
+              <div>
+                <span>01</span>
+                <strong>X-ray evidence</strong>
+              </div>
+              <i>+</i>
+              <div>
+                <span>02</span>
+                <strong>Impact demand</strong>
+              </div>
+              <i>+</i>
+              <div>
+                <span>03</span>
+                <strong>Bone fragility</strong>
+              </div>
+              <i>=</i>
+              <div class="fusion-result">
+                <span>04</span>
+                <strong>Crew action plan</strong>
+              </div>
+            </div>
+
+            <div class="method-note">
+              <span class="section-label">Transparent fusion</span>
+              <p>
+                The combined signal weights image evidence, simulated impact demand, and estimated
+                fragility. Crew condition then sets operational urgency without changing the image
+                probability.
+              </p>
+            </div>
+
+            <details class="research-details">
+              <summary>Current validation limits</summary>
+              <p>
+                DenseNet121 test AUC 0.899, fracture recall 0.656, and U-Net++ test Dice 0.394.
+                External clinical, astronaut, and lab contact validation are still required.
+              </p>
+            </details>
+          </section>
+
+          <div class="workflow-actions">
+            <button id="workflow-back" class="quiet-action" type="button" disabled>Back</button>
+            <span id="workflow-progress">1 / 4</span>
+            <button id="workflow-next" class="primary-action" type="button">Next: impact</button>
+          </div>
+        </aside>
+
+        <section class="chat decision-panel" aria-label="AstroBone crew medical support">
+          <div class="panel-heading">
+            <div>
+              <span class="section-label">Onboard support</span>
+              <h2 id="support-panel-title">Crew medical support</h2>
+            </div>
+            <span id="assistant-mode" class="status-badge">Crew mode</span>
+          </div>
+
+          <div id="decision-summary" class="decision-summary" data-band="incomplete">
+            <div id="decision-gauge" class="decision-gauge" aria-label="Combined decision signal">
+              <strong id="decision-score">--</strong>
+              <span>/100</span>
+            </div>
+            <div>
+              <span id="decision-band" class="decision-band">Incomplete evidence</span>
+              <h3 id="decision-title">Connect all three evidence sources</h3>
+              <p id="decision-recommendation">
+                Load or import an X-ray result before treating this as a combined decision.
+              </p>
+            </div>
+          </div>
+
+          <div class="source-breakdown" aria-label="Evidence contribution breakdown">
+            <div class="source-row">
+              <div>
+                <span>X-ray evidence</span>
+                <strong id="source-imaging-value">Missing</strong>
+              </div>
+              <div class="source-track"><span id="source-imaging-bar"></span></div>
+            </div>
+            <div class="source-row">
+              <div>
+                <span>Impact demand</span>
+                <strong id="source-impact-value">--</strong>
+              </div>
+              <div class="source-track"><span id="source-impact-bar"></span></div>
+            </div>
+            <div class="source-row">
+              <div>
+                <span>Bone fragility</span>
+                <strong id="source-fragility-value">--</strong>
+              </div>
+              <div class="source-track"><span id="source-fragility-bar"></span></div>
+            </div>
+          </div>
+
+          <div class="decision-context">
+            <div>
+              <span>Evidence coverage</span>
+              <strong id="decision-coverage">2 of 3 sources</strong>
+            </div>
+            <div>
+              <span>Uncertainty</span>
+              <strong id="decision-uncertainty">Wide</strong>
+            </div>
+          </div>
+
+          <p id="decision-rationale" class="decision-rationale">
+            Impact and fragility are estimated, but structural image evidence is still missing.
+          </p>
+
+          <section class="competition-panel" aria-labelledby="competition-title">
+            <div class="panel-heading">
+              <div>
+                <span class="section-label">Competition pack</span>
+                <h3 id="competition-title">Readiness upgrades</h3>
+              </div>
+              <span class="status-badge">Prototype</span>
+            </div>
+            <div class="competition-grid">
+              <div>
+                <span>Problem</span>
+                <strong>Delayed care risk</strong>
+                <small>Exploration crews need a way to screen, assess, respond, and hand off evidence.</small>
+              </div>
+              <div>
+                <span>Solution</span>
+                <strong>Explainable twin</strong>
+                <small>3D mechanics, AI image evidence, fragility inputs, and response actions stay linked.</small>
+              </div>
+              <div>
+                <span>Validation</span>
+                <strong>In progress</strong>
+                <small>Current metrics are shown, but external biomechanics and mission data are still needed.</small>
+              </div>
+            </div>
+            <div class="readiness-list" aria-label="Competition readiness checklist">
+              <div data-status="ready"><span></span><strong>Working interactive prototype</strong></div>
+              <div data-status="ready"><span></span><strong>Problem-to-solution story</strong></div>
+              <div data-status="progress"><span></span><strong>Model card, dataset card, and AI disclosure</strong></div>
+              <div data-status="gap"><span></span><strong>Official challenge mapping and NASA data citation</strong></div>
+              <div data-status="gap"><span></span><strong>30-second demo or 7-slide submission deck</strong></div>
+            </div>
+            <button id="export-competition-brief" type="button">Export competition brief</button>
+          </section>
+
+          <section class="validation-panel" aria-labelledby="validation-title">
+            <div class="panel-heading">
+              <div>
+                <span class="section-label">Validation layer</span>
+                <h3 id="validation-title">Model cards & evidence</h3>
+              </div>
+              <span class="status-badge">Transparent</span>
+            </div>
+
+            <div class="formula-stack" aria-label="Physics model formulas">
+              <div>
+                <span>Impact energy</span>
+                <code>0.5 * mass * speed^2</code>
+              </div>
+              <div>
+                <span>Load path</span>
+                <code>sin(angle)</code>
+              </div>
+              <div>
+                <span>Stress proxy</span>
+                <code>effective energy / contact area</code>
+              </div>
+              <div>
+                <span>Fragility</span>
+                <code>bone reserve + microgravity/fatigue</code>
+              </div>
+            </div>
+
+            <div class="model-card-grid" aria-label="Prototype model cards">
+              <article>
+                <span>Image classifier</span>
+                <strong>DenseNet121</strong>
+                <small>FracAtlas prototype split | AUC 0.899 | fracture recall 0.656</small>
+              </article>
+              <article>
+                <span>Mask localizer</span>
+                <strong>U-Net++</strong>
+                <small>DenseNet121 encoder | test Dice 0.394 | needs stronger masks</small>
+              </article>
+              <article>
+                <span>Use boundary</span>
+                <strong>Decision support</strong>
+                <small>Research only. It does not diagnose, prescribe, or replace medical review.</small>
+              </article>
+            </div>
+
+            <div class="evidence-links" aria-label="Source-backed evidence links">
+              <a href="https://www.nasa.gov/directorates/esdmd/hhp/risk-of-bone-fracture-due-to-spaceflight-induced-changes-to-bone/" target="_blank" rel="noreferrer">NASA fracture risk</a>
+              <a href="https://www.nasa.gov/reference/risk-of-spaceflight-induced-bone-changes/" target="_blank" rel="noreferrer">NASA bone changes</a>
+              <a href="https://www.nasa.gov/hrp/" target="_blank" rel="noreferrer">NASA HRP data</a>
+              <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC10404222/" target="_blank" rel="noreferrer">FracAtlas paper</a>
+            </div>
+
+            <button id="export-validation-report" type="button">Export validation report</button>
+          </section>
+
+          <section class="care-plan" aria-labelledby="care-plan-title">
+            <div class="panel-heading">
+              <div>
+                <span class="section-label">Next actions</span>
+                <h3 id="care-plan-title">Onboard response plan</h3>
+              </div>
+              <span id="care-priority" class="status-badge">Assisted review</span>
+            </div>
+            <p id="care-summary" class="care-summary">
+              The response plan can begin while image evidence is being collected.
+            </p>
+            <div id="care-actions" class="care-actions" aria-live="polite"></div>
+            <div class="crew-tools">
+              <button id="log-observation" type="button">Log observation</button>
+              <button id="export-handoff" class="primary-action" type="button">Export handoff</button>
+            </div>
+            <div class="observation-status">
+              <span>Trend log</span>
+              <strong id="observation-count">0 observations</strong>
+            </div>
+            <p id="protocol-note" class="protocol-note">
+              Operational use requires an approved musculoskeletal response protocol.
+            </p>
+          </section>
+
+          <div class="assistant-heading">
+            <div>
+              <span class="section-label">Question layer</span>
+              <h3>Ask AstroBone</h3>
+            </div>
+          </div>
+          <div id="chat-log" class="chat-log" aria-live="polite"></div>
+
+          <div class="suggestions" aria-label="Suggested prompts">
+            <button data-prompt="Explain the current risk score." type="button">Explain risk</button>
+            <button data-prompt="What would make this NASA-ready?" type="button">NASA-ready</button>
+            <button data-prompt="How does this translate to sports?" type="button">Sports mode</button>
+          </div>
+
+          <form id="chat-form" class="chat-form">
+            <input id="chat-input" autocomplete="off" placeholder="Ask about force, angle, bone loss, or validation" />
+            <button type="submit">Send</button>
+          </form>
+        </section>
+      </main>
+
+      <footer class="app-footer">
+        AstroBone supports prevention, assessment, response tracking, and medical handoff. It does
+        not diagnose fracture, prescribe treatment, or replace qualified medical or mission decisions.
+      </footer>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
