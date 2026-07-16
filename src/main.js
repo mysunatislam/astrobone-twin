@@ -330,6 +330,10 @@ const externalSkeleton = {
   neutralPose: {},
   loaded: false,
 };
+const SKELETON_MODEL_URLS = [
+  "/models/grumpy_skeleton_walk_cycle.glb",
+  "https://raw.githubusercontent.com/mysunatislam/astrobone-twin/main/public/models/grumpy_skeleton_walk_cycle.glb",
+];
 externalSkeleton.group.name = "Rigged skeleton GLB display";
 externalSkeleton.group.position.set(-0.1, 0.45, -0.1);
 externalSkeleton.group.rotation.y = -0.32;
@@ -660,8 +664,8 @@ function jointMesh(radius, name) {
 
 function loadRiggedSkeleton() {
   const loader = new GLTFLoader();
-  loader.load(
-    "/models/grumpy_skeleton_walk_cycle.glb",
+  const loadFromCandidate = (index = 0) => loader.load(
+    SKELETON_MODEL_URLS[index],
     (gltf) => {
       const model = gltf.scene;
       model.name = "Rigged human skeleton";
@@ -716,10 +720,16 @@ function loadRiggedSkeleton() {
     },
     undefined,
     (error) => {
+      if (index + 1 < SKELETON_MODEL_URLS.length) {
+        loadFromCandidate(index + 1);
+        return;
+      }
       console.warn("Rigged skeleton failed to load; using procedural fallback.", error);
       leg.visible = true;
     },
   );
+
+  loadFromCandidate();
 }
 
 function fitModelToTwin(model, targetHeight) {
