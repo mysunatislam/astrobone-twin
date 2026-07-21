@@ -8,15 +8,15 @@ import { calculateCarePlan } from "./carePlan.js";
 
 const state = {
   mode: "space",
-  objectType: "paper",
+  objectType: "evaTool",
   motionMode: "stand",
   target: "tibia",
-  mass: 5,
-  speed: 82,
-  angle: 76,
-  contactArea: 2,
-  boneIndex: 0.74,
-  microgravityDays: 240,
+  mass: 2000,
+  speed: 4,
+  angle: 75,
+  contactArea: 12,
+  boneIndex: 0.9,
+  microgravityDays: 180,
   fatigue: 0.48,
   painScore: 6,
   swelling: "moderate",
@@ -98,13 +98,13 @@ const presets = {
     mode: "space",
     objectType: "evaTool",
     motionMode: "stand",
-    target: "ankle",
-    mass: 92,
-    speed: 18,
-    angle: 54,
-    contactArea: 18,
-    boneIndex: 0.84,
-    microgravityDays: 210,
+    target: "tibia",
+    mass: 2000,
+    speed: 4,
+    angle: 75,
+    contactArea: 12,
+    boneIndex: 0.9,
+    microgravityDays: 180,
     fatigue: 0.48,
     painScore: 6,
     swelling: "moderate",
@@ -406,7 +406,7 @@ scene.add(normalArrow);
 
 let latestModel = calculateRisk(state);
 let latestDecision = calculateDecision({
-  physicsScore: latestModel.score,
+  physicsScore: latestModel.mechanicalDemandScore,
   fragility: latestModel.fragility,
 });
 let latestCarePlan = calculateCarePlan({
@@ -823,7 +823,7 @@ function syncInputs() {
 
 function updateUi() {
   latestDecision = calculateDecision({
-    physicsScore: latestModel.score,
+    physicsScore: latestModel.mechanicalDemandScore,
     fragility: latestModel.fragility,
     aiLoaded: aiState.loaded,
     fractureProbability: aiState.fractureProbability,
@@ -851,21 +851,23 @@ function updateUi() {
     sensationChange: state.sensationChange,
   });
 
-  refs.riskScore.textContent = `${Math.round(latestModel.score)}/100`;
+  refs.riskScore.textContent = `${latestModel.demandCapacityRatio.toFixed(2)}x`;
   refs.riskStatus.textContent = aiState.loaded
     ? latestDecision.band.label
-    : `${latestModel.status} / incomplete`;
+    : `${latestModel.riskBand.label} / incomplete`;
   refs.loadPath.textContent = `${Math.round(latestModel.normalComponent * 100)}% normal load path`;
-  refs.energyMetric.textContent = `${latestModel.kineticEnergy.toFixed(1)} J`;
-  refs.stressMetric.textContent = `${latestModel.energyDensity.toFixed(2)} J/mm2`;
-  refs.fragilityMetric.textContent = `${latestModel.fragility.toFixed(2)}x`;
+  refs.energyMetric.textContent = `${latestModel.kineticEnergyJ.toFixed(1)} J`;
+  refs.stressMetric.textContent = `${(latestModel.contactStressPa / 1e6).toFixed(1)} MPa`;
+  refs.fragilityMetric.textContent = `${(latestModel.adjustedCapacity / 1e6).toFixed(1)} MPa`;
   refs.confidenceMetric.textContent = latestModel.confidence;
   refs.sceneDecisionScore.textContent = aiState.loaded
     ? `${latestDecision.score}/100`
     : "Incomplete";
   refs.sceneEvidenceCount.textContent = `${latestDecision.sourceCount} of 3`;
 
-  const riskColor = getRiskColor(aiState.loaded ? latestDecision.score : latestModel.score);
+  const riskColor = getRiskColor(
+    aiState.loaded ? latestDecision.score : latestModel.displaySeverity,
+  );
   refs.riskScore.style.color = riskColor.css;
   refs.riskStatus.style.color = riskColor.css;
   updateAiUi();
@@ -1050,13 +1052,13 @@ function updateScene() {
   setActiveProjectile(state.objectType);
   const flex = state.mode === "sport" ? 0.24 : 0.08;
   rig.femurPivot.rotation.x = THREE.MathUtils.degToRad(3);
-  rig.shinPivot.rotation.x = flex + latestModel.score * 0.0018;
-  rig.anklePivot.rotation.x = -0.12 - latestModel.score * 0.0009;
+  rig.shinPivot.rotation.x = flex + latestModel.displaySeverity * 0.0018;
+  rig.anklePivot.rotation.x = -0.12 - latestModel.displaySeverity * 0.0009;
   rig.kneeBone.rotation.x = rig.shinPivot.rotation.x;
   rig.ankleBone.rotation.x = rig.anklePivot.rotation.x;
   rig.envelope.material.opacity = state.mode === "space" ? 0.11 : 0.16;
 
-  const riskColor = getRiskColor(latestModel.score);
+  const riskColor = getRiskColor(latestModel.displaySeverity);
   [rig.femur, rig.tibia, rig.fibula].forEach((mesh) => {
     mesh.material.color.set(0xf3ead8);
     mesh.material.emissive = new THREE.Color(0x000000);
@@ -1065,13 +1067,13 @@ function updateScene() {
   const targetMesh = state.target === "femur" ? rig.femur : rig.tibia;
   targetMesh.material.color.set(riskColor.hex);
   targetMesh.material.emissive = new THREE.Color(riskColor.hex);
-  targetMesh.material.emissiveIntensity = latestModel.score / 220;
+  targetMesh.material.emissiveIntensity = latestModel.displaySeverity / 220;
 
   const impactPoint = getImpactPoint();
   const direction = getImpactDirection();
   stressMaterial.color.set(riskColor.hex);
   stressMaterial.emissive.set(riskColor.hex);
-  stressMaterial.opacity = 0.36 + latestModel.score / 180;
+  stressMaterial.opacity = 0.36 + latestModel.displaySeverity / 180;
 
   updateImpactVisuals({
     impactPoint,
@@ -1100,12 +1102,12 @@ function updateImpactVisuals({
   marker.position.copy(impactPoint);
   ring.position.copy(impactPoint);
   ring.lookAt(viewCamera.position);
-  ring.scale.setScalar(0.42 + latestModel.score / 180);
+  ring.scale.setScalar(0.42 + latestModel.displaySeverity / 180);
 
   fracture.position.copy(impactPoint);
   fracture.lookAt(viewCamera.position);
-  fracture.scale.setScalar(0.4 + latestModel.score / 70);
-  fracture.visible = latestModel.score >= 42;
+  fracture.scale.setScalar(0.4 + latestModel.displaySeverity / 70);
+  fracture.visible = latestModel.demandCapacityRatio >= 0.5;
 
   const start = impactPoint.clone().sub(direction.clone().multiplyScalar(3.1));
   loadArrow.position.copy(start);
@@ -1160,9 +1162,9 @@ function orientProjectile(projectileGroup, direction, viewCamera) {
 }
 
 function getProjectileScale() {
-  if (state.objectType === "paper") return 0.46 + latestModel.score / 1800;
-  if (state.objectType === "runnerLoad") return 0.8 + latestModel.score / 500;
-  return 0.92 + latestModel.score / 340;
+  if (state.objectType === "paper") return 0.46 + latestModel.displaySeverity / 1800;
+  if (state.objectType === "runnerLoad") return 0.8 + latestModel.displaySeverity / 500;
+  return 0.92 + latestModel.displaySeverity / 340;
 }
 
 function getImpactPoint() {
@@ -1402,7 +1404,9 @@ function logObservation() {
       sensationChange: state.sensationChange,
     },
     combinedSignal: aiState.loaded ? latestDecision.score : null,
-    impactDemand: Math.round(latestModel.score),
+    mechanicalDemandIndex: Math.round(latestModel.mechanicalDemandScore),
+    demandCapacityRatio: Number(latestModel.demandCapacityRatio.toFixed(4)),
+    relativeConcernBand: latestModel.riskBand.label,
     carePriority: latestCarePlan.priority.label,
     completedActions: [...completedCareActions],
   });
@@ -1484,7 +1488,8 @@ function exportCompetitionBrief() {
       mode: state.mode,
       scenario: OBJECT_META[state.objectType].label,
       targetRegion: TARGET_META[state.target].label,
-      impactDemand: Math.round(latestModel.score),
+      demandCapacityRatio: Number(latestModel.demandCapacityRatio.toFixed(3)),
+      relativeConcernBand: latestModel.riskBand.label,
       sourceCoverage: `${latestDecision.sourceCount} of 3`,
       uncertainty: latestDecision.uncertainty,
       carePriority: latestCarePlan.priority.label,
@@ -1573,28 +1578,42 @@ function exportValidationReport() {
     mechanicsModel: {
       kineticEnergy: {
         formula: "0.5 * massKg * speedMetersPerSecond^2",
-        currentJoules: Number(latestModel.kineticEnergy.toFixed(4)),
+        currentJoules: Number(latestModel.kineticEnergyJ.toFixed(4)),
       },
-      normalLoadComponent: {
-        formula: "sin(impactAngleDegrees)",
-        currentFraction: Number(latestModel.normalComponent.toFixed(4)),
+      normalImpactEnergy: {
+        formula: "0.5 * massKg * (speedMetersPerSecond * sin(angle))^2",
+        currentJoules: Number(latestModel.normalImpactEnergyJ.toFixed(4)),
       },
-      effectiveEnergy: {
-        formula: "kineticEnergy * (0.22 + normalLoadComponent * 0.78)",
-        currentJoules: Number(latestModel.effectiveEnergy.toFixed(4)),
+      estimatedImpulse: {
+        formula: "massKg * normalImpactSpeed",
+        currentNewtonSeconds: Number(latestModel.estimatedImpulseNs.toFixed(4)),
       },
-      stressProxy: {
-        formula: "effectiveEnergy / max(1, contactAreaSquareMillimeters)",
-        currentJoulesPerSquareMillimeter: Number(latestModel.energyDensity.toFixed(4)),
+      averageForce: {
+        formula: "estimatedImpulse / impactDurationSeconds",
+        currentNewtons: Number(latestModel.averageForceN.toFixed(4)),
       },
-      fragilityMultiplier: {
-        formula:
-          "0.82 + boneReservePenalty + microgravityTerm + sportFatigueTerm",
-        currentMultiplier: Number(latestModel.fragility.toFixed(4)),
+      contactStress: {
+        formula: "averageForce / contactAreaSquareMeters",
+        currentMegapascals: Number((latestModel.contactStressPa / 1e6).toFixed(4)),
       },
-      riskScore:
-        "Prototype bounded score from stress proxy, effective energy, speed excess, fragility, and target-site modifier.",
+      estimatedStrain: {
+        formula: "contactStressPa / boneModulusPa",
+        currentMicrostrain: Number((latestModel.estimatedStrain * 1e6).toFixed(2)),
+      },
+      capacity: {
+        formula: "baselineCapacity * microgravity * site * person factors",
+        baselineMegapascals: Number((latestModel.baselineCapacity / 1e6).toFixed(4)),
+        adjustedMegapascals: Number((latestModel.adjustedCapacity / 1e6).toFixed(4)),
+      },
+      demandCapacityRatio: {
+        formula: "contactStressPa / adjustedCapacityPa",
+        currentValue: Number(latestModel.demandCapacityRatio.toFixed(4)),
+        researchBand: latestModel.riskBand,
+        clinicalCutoff: false,
+      },
       validationStatus: latestModel.confidence,
+      assumptions: latestModel.assumptions,
+      warnings: latestModel.warnings,
     },
     imageModelCard: {
       intendedUse:
@@ -1758,7 +1777,7 @@ function getNextLabel(stage, fallback) {
 }
 
 async function runGuidedDemo() {
-  const presetName = state.mode === "space" ? "paper" : "runner";
+  const presetName = state.mode === "space" ? "eva" : "runner";
   applyPreset(presetName, { announce: false });
   setWorkflowStage(0);
   refs.guidedDemo.disabled = true;
@@ -1768,7 +1787,7 @@ async function runGuidedDemo() {
     await loadDemoPrediction(state.target);
     appendAssistantMessage(
       state.mode === "space"
-        ? "Guided exploration case loaded: a distal-leg X-ray signal is now compared with a visible paper-edge impact and 240 days of microgravity exposure. The response plan can be used even if ground advice is delayed."
+        ? "Guided exploration case loaded: a distal-leg X-ray signal is now compared with an EVA-tool impact to the tibia after 180 days of microgravity exposure. The response plan can be used even if ground advice is delayed."
         : "Guided sport case loaded: a distal-leg X-ray signal is now compared with repetitive runner loading and elevated training fatigue.",
     );
   } catch (error) {
@@ -1862,12 +1881,12 @@ function replyTo(prompt) {
     return "For sports, this becomes an early warning twin for stress injury. Use training load, pain score, recovery, previous injury, and wearable acceleration as inputs; then show how repeated tibial stress changes the risk map before a visible fracture appears.";
   }
   if (cleaned.includes("angle") || cleaned.includes("speed") || cleaned.includes("force")) {
-    return `In this run, ${state.speed} m/s and a ${state.angle} degree angle create ${latestModel.kineticEnergy.toFixed(1)} J of kinetic energy. The model converts part of that into a normal load path, then divides by the ${state.contactArea} mm2 contact patch to estimate local stress density.`;
+    return `In this run, ${state.speed} m/s and a ${state.angle} degree angle create ${latestModel.kineticEnergyJ.toFixed(1)} J of kinetic energy. Arresting the normal velocity over ${latestModel.inputs.impactDurationMs} ms gives an estimated average force of ${latestModel.averageForceN.toFixed(0)} N and nominal contact stress of ${(latestModel.contactStressPa / 1e6).toFixed(1)} MPa.`;
   }
   if (cleaned.includes("risk") || cleaned.includes("score") || cleaned.includes("explain")) {
     return aiState.loaded
       ? `Combined review signal: <strong>${latestDecision.score}/100</strong>. It combines ${(latestDecision.imagingScore).toFixed(1)}/100 image evidence, ${latestDecision.impactScore.toFixed(0)}/100 impact demand, and ${latestDecision.fragilityScore.toFixed(0)}/100 fragility. Uncertainty remains ${latestDecision.uncertainty.toLowerCase()}.`
-      : `Impact demand is <strong>${Math.round(latestModel.score)}/100</strong>, but the combined decision is incomplete because image evidence is missing. The current mechanical drivers are ${latestModel.energyDensity.toFixed(2)} J/mm2 stress density and ${latestModel.fragility.toFixed(2)}x fragility.`;
+      : `The demand-capacity ratio is <strong>${latestModel.demandCapacityRatio.toFixed(2)}x</strong> (${latestModel.riskBand.label.toLowerCase()}). It compares ${(latestModel.contactStressPa / 1e6).toFixed(1)} MPa nominal contact stress with ${(latestModel.adjustedCapacity / 1e6).toFixed(1)} MPa estimated capacity. This is a relative research index, not a fracture probability.`;
   }
   if (cleaned.includes("validate") || cleaned.includes("data")) {
     return "Validation should happen in layers: first physics sanity checks, then biomechanics literature comparison, then open motion or impact datasets, then expert review. A NASA-facing demo should show every assumption and let judges change inputs live.";
@@ -1910,8 +1929,10 @@ function animate(now) {
   projectile.scale.setScalar(getProjectileScale());
 
   updateScene();
-  impactMarker.scale.setScalar(1 + Math.sin(elapsed * 6) * 0.08 + latestModel.score / 240);
-  stressRing.rotation.z += 0.012 + latestModel.score / 9000;
+  impactMarker.scale.setScalar(
+    1 + Math.sin(elapsed * 6) * 0.08 + latestModel.displaySeverity / 240,
+  );
+  stressRing.rotation.z += 0.012 + latestModel.displaySeverity / 9000;
   renderer.render(scene, camera);
 }
 
@@ -1969,7 +1990,7 @@ function bindEvents() {
   });
 
   refs.resetButton.addEventListener("click", () => {
-    const presetName = state.mode === "sport" ? "runner" : "paper";
+    const presetName = state.mode === "sport" ? "runner" : "eva";
     Object.assign(state, presets[presetName]);
     resetResponseRecord();
     latestModel = calculateRisk(state);

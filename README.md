@@ -65,12 +65,17 @@ The impact model is separated into `src/riskModel.js`, and the evidence-fusion l
 into `src/decisionModel.js`. Operational urgency and response actions are separated into
 `src/carePlan.js`, so symptoms cannot silently alter the fracture model.
 
-The current fusion score is a transparent research heuristic, not a calibrated fracture
-probability.
+The mechanics layer now reports a demand-capacity ratio with explicit force, stress, strain,
+capacity, assumptions, and warnings. Its thresholds and the separate evidence-fusion score are
+research constructs, not calibrated fracture probabilities.
 
 ## Research Docs
 
 - `docs/research-roadmap.md` - phased plan from prototype to research-grade digital twin
+- `docs/research-question.md` - frozen EVA-tool/tibia question and prediction boundary
+- `docs/data-dictionary.md` - units, ranges, sources, and uncertainty for every model variable
+- `docs/model-assumptions.md` - Level-A equations, assumptions, warnings, and claim limits
+- `docs/validation-plan.md` - software, sensitivity, biomechanics, imaging, and expert validation
 - `docs/literature-map.md` - NASA, biomechanics, sports, and Simscape sources to study
 - `docs/modeling-stack.md` - web, Python, Simscape, FEA, and chatbot architecture
 - `docs/dataset-plan.md` - public datasets for deep learning and training roadmap

@@ -7,33 +7,41 @@ AstroBone is a research prototype for explainable musculoskeletal decision suppo
 ## Mechanics Model Card
 
 Inputs:
-- object mass in grams
+- object mass converted to kilograms
 - speed in meters per second
 - impact angle in degrees
 - contact area in square millimeters
+- impact duration in milliseconds
+- cortical-bone modulus in gigapascals
+- nominal baseline capacity in megapascals
 - target region
 - bone strength index
 - microgravity exposure or sport fatigue
 
 Current formulas:
 - kinetic energy = `0.5 * massKg * speed^2`
-- normal load component = `sin(angle)`
-- effective energy = `kineticEnergy * (0.22 + normalComponent * 0.78)`
-- stress proxy = `effectiveEnergy / max(1, contactArea)`
-- fragility multiplier = `0.82 + boneReservePenalty + microgravityTerm + sportFatigueTerm`
+- normal speed = `speed * sin(angle)`
+- estimated impulse = `massKg * normalSpeed`
+- average force = `estimatedImpulse / impactDuration`
+- nominal contact stress = `averageForce / contactArea`
+- estimated strain = `contactStress / boneModulus`
+- adjusted capacity = `baselineCapacity * microgravity * site * person * sport factors`
+- DCR = `contactStress / adjustedCapacity`
 
 Intended use:
 - show directionally correct relationships
 - support live scenario exploration
 - expose assumptions for judges and reviewers
+- compare scenarios with a transparent demand-capacity ratio
 
 Non-use:
-- do not treat the score as fracture probability
+- do not treat DCR as fracture probability
 - do not use it for medical treatment decisions
-- do not claim it is validated contact mechanics
+- do not treat nominal contact stress as a local peak or whole-bone fracture criterion
 
 Next validation:
-- hand-calc sanity cases
+- hand-calculation and automated unit/sanity cases
+- Monte Carlo intervals and sensitivity analysis
 - Simscape or finite-element contact tests
 - comparison with biomechanics literature
 - clinician or aerospace-medicine review

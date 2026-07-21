@@ -56,7 +56,7 @@ export function calculateDecision({
 }
 
 export function fragilityToScore(fragility) {
-  const normalized = ((Number(fragility) || 0.82) - 0.82) / 1.08;
+  const normalized = (Number(fragility) || 1) - 1;
   return Math.round(clamp(normalized * 100, 0, 100));
 }
 
